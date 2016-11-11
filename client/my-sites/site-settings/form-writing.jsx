@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { each, pick, map } from 'lodash';
+import { each, pick, map, get } from 'lodash';
 
 /**
  * Internal dependencies
@@ -28,6 +28,8 @@ import { getSelectedSiteId } from 'state/ui/selectors';
 import { requestPostTypes } from 'state/post-types/actions';
 import { isRequestingTermsForQuery, getTerms } from 'state/terms/selectors';
 import CustomPostTypeFieldset from './custom-post-types-fieldset';
+import MediaSettings from './media-settings';
+import QueryJetpackModules from 'components/data/query-jetpack-modules';
 
 const SiteSettingsFormWriting = React.createClass( {
 	mixins: [ dirtyLinkedState, formBase ],
@@ -122,6 +124,7 @@ const SiteSettingsFormWriting = React.createClass( {
 		const markdownSupported = this.state.markdown_supported;
 		return (
 			<form id="site-settings" onSubmit={ this.submitFormAndActivateCustomContentModule } onChange={ this.props.markChanged }>
+				<QueryJetpackModules siteId={ this.props.siteId }/>
 				{ config.isEnabled( 'manage/site-settings/categories' ) &&
 					<div className="site-settings__taxonomies">
 						<QueryTaxonomies siteId={ this.props.siteId } postType="post" />
@@ -224,6 +227,16 @@ const SiteSettingsFormWriting = React.createClass( {
 						</FormFieldset>
 					}
 				</Card>
+				{
+					get( this.props.site, 'jetpack' ) && (
+						<MediaSettings
+							site={ this.props.site }
+							submittingForm={ this.state.submittingForm }
+							submitFormAndActivateCustomContentModule={ this.submitFormAndActivateCustomContentModule }
+							fetchingSettings={ this.state.fetchingSettings }
+							/>
+					)
+				}
 			</form>
 		);
 	}
