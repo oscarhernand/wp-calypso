@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React, { Component } from 'react';
+import { compose } from 'redux';
 import page from 'page';
 import { omit } from 'lodash';
 import { connect } from 'react-redux';
@@ -22,7 +23,7 @@ import config from 'config';
 import { protectForm } from 'lib/protect-form';
 import notices from 'notices';
 import analytics from 'lib/analytics';
-import formFields from 'lib/form-fields';
+import trackForm from 'lib/track-form';
 import Gridicon from 'components/gridicon';
 import FormInput from 'components/forms/form-text-input';
 import FormFieldset from 'components/forms/form-fieldset';
@@ -40,6 +41,7 @@ import { FEATURE_NO_BRANDING } from 'lib/plans/constants';
 import { isRequestingSiteSettings, isSavingSiteSettings, getSiteSettings } from 'state/site-settings/selectors';
 import { saveSiteSettings } from 'state/site-settings/actions';
 import { clearNotices } from 'state/notices/actions';
+import { getSelectedSiteId } from 'state/ui/selectors';
 import QuerySiteSettings from 'components/data/query-site-settings';
 
 const debug = debugFactory( 'calypso:my-sites:site-settings' );
@@ -199,34 +201,36 @@ class SiteSettingsFormGeneral extends Component {
 		const { translate, isRequestingSettings, fields } = this.props;
 
 		return (
-			<div>
-				<FormFieldset>
-					<FormLabel htmlFor="blogname">{ translate( 'Site Title' ) }</FormLabel>
-					<FormInput
-						name="blogname"
-						id="blogname"
-						type="text"
-						value={ fields.blogname || '' }
-						onChange={ this.onChangeField( 'blogname' ) }
-						disabled={ isRequestingSettings }
-						onClick={ this.onRecordEvent( 'Clicked Site Title Field' ) }
-						onKeyPress={ this.onRecordEventOnce( 'typedTitle', 'Typed in Site Title Field' ) } />
-				</FormFieldset>
-				<FormFieldset>
-					<FormLabel htmlFor="blogdescription">{ translate( 'Site Tagline' ) }</FormLabel>
-					<FormInput
-						name="blogdescription"
-						type="text"
-						id="blogdescription"
-						value={ fields.blogdescription || '' }
-						onChange={ this.onChangeField( 'blogdescription' ) }
-						disabled={ isRequestingSettings }
-						onClick={ this.onRecordEvent( 'Clicked Site Site Tagline Field' ) }
-						onKeyPress={ this.onRecordEventOnce( 'typedTagline', 'Typed in Site Site Tagline Field' ) } />
-					<FormSettingExplanation>
-						{ translate( 'In a few words, explain what this site is about.' ) }
-					</FormSettingExplanation>
-				</FormFieldset>
+			<div className="site-settings__site-options">
+				<div className="site-settings__site-title-tagline">
+					<FormFieldset>
+						<FormLabel htmlFor="blogname">{ translate( 'Site Title' ) }</FormLabel>
+						<FormInput
+							name="blogname"
+							id="blogname"
+							type="text"
+							value={ fields.blogname || '' }
+							onChange={ this.onChangeField( 'blogname' ) }
+							disabled={ isRequestingSettings }
+							onClick={ this.onRecordEvent( 'Clicked Site Title Field' ) }
+							onKeyPress={ this.onRecordEventOnce( 'typedTitle', 'Typed in Site Title Field' ) } />
+					</FormFieldset>
+					<FormFieldset>
+						<FormLabel htmlFor="blogdescription">{ translate( 'Site Tagline' ) }</FormLabel>
+						<FormInput
+							name="blogdescription"
+							type="text"
+							id="blogdescription"
+							value={ fields.blogdescription || '' }
+							onChange={ this.onChangeField( 'blogdescription' ) }
+							disabled={ isRequestingSettings }
+							onClick={ this.onRecordEvent( 'Clicked Site Site Tagline Field' ) }
+							onKeyPress={ this.onRecordEventOnce( 'typedTagline', 'Typed in Site Site Tagline Field' ) } />
+						<FormSettingExplanation>
+							{ translate( 'In a few words, explain what this site is about.' ) }
+						</FormSettingExplanation>
+					</FormFieldset>
+				</div>
 				<SiteIconSetting />
 			</div>
 		);
@@ -792,14 +796,22 @@ class SiteSettingsFormGeneral extends Component {
 	}
 }
 
-export default connect(
-	( state, { site } ) => {
-		const isRequestingSettings = site ? isRequestingSiteSettings( state, site.ID ) : false;
-		const isSavingSettings = site ? isSavingSiteSettings( state, site.ID ) : false;
-		const settings = site ? getSiteSettings( state, site.ID ) : null;
+const reduxWrap = connect(
+	state => {
+		const siteId = getSelectedSiteId( state );
+		const isRequestingSettings = isRequestingSiteSettings( state, siteId );
+		const isSavingSettings = isSavingSiteSettings( state, siteId );
+		const settings = getSiteSettings( state, siteId );
 		return {
 			isRequestingSettings, isSavingSettings, settings
 		};
 	},
 	{ clearNotices, saveSiteSettings }
-)( localize( formFields( protectForm( SiteSettingsFormGeneral ) ) ) );
+);
+
+export default compose(
+	reduxWrap,
+	localize,
+	trackForm,
+	protectForm
+)( SiteSettingsFormGeneral );
