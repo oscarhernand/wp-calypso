@@ -20,7 +20,9 @@ const getContent = ( { props: reactComponentProps } ) => {
 	if ( typeof reactComponentProps.dangerouslySetInnerHTML === 'object' ) {
 		// Strip tags because we're only interested in the text, not markup
 		// copied from: http://stackoverflow.com/questions/5002111/javascript-how-to-strip-html-tags-from-string#answer-5002161
-		return reactComponentProps.dangerouslySetInnerHTML.__html.replace( /<\/?[^>]+(>|$)/g, '' );
+		return reactComponentProps.dangerouslySetInnerHTML.__html
+			? reactComponentProps.dangerouslySetInnerHTML.__html.replace( /<\/?[^>]+(>|$)/g, '' )
+			: '';
 	}
 
 	// This child is some kind of input
