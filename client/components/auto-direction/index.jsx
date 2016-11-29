@@ -101,11 +101,11 @@ const RTLCharRanges = [
 ];
 
 const RTL_THRESHOLD = 0.5;
-const MAX_LENGTH_OF_TEXT_TO_EXAMINE = 1000;
+const MAX_LENGTH_OF_TEXT_TO_EXAMINE = 100;
 
-const isRTLChar = ( char ) => {
-	const charCode = char.charCodeAt( 0 );
-	return RTLCharRanges.some( range => range.start <= charCode && range.end >= charCode );
+const isRTLChar = ( character ) => {
+	const characterCode = character.charCodeAt( 0 );
+	return RTLCharRanges.some( range => range.start <= characterCode && range.end >= characterCode );
 };
 
 /***
