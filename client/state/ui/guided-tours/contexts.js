@@ -1,6 +1,5 @@
 import config from 'config';
 import { getSectionName, isPreviewShowing, getSelectedSite } from 'state/ui/selectors';
-import { isFetchingNextPage, getQueryParams, getThemesList } from 'state/themes/themes-list/selectors';
 import { getCurrentUser } from 'state/current-user/selectors';
 import { abtest } from 'lib/abtest';
 
