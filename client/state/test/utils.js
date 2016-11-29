@@ -3,7 +3,7 @@
  */
 import deepFreeze from 'deep-freeze';
 import { expect } from 'chai';
-import noop from 'lodash/noop';
+import { noop, includes } from 'lodash';
 import { stub, spy } from 'sinon';
 
 /**
@@ -22,12 +22,12 @@ describe( 'utils', () => {
 		} ),
 		actionSerialize = { type: SERIALIZE },
 		actionDeserialize = { type: DESERIALIZE };
-	let extendAction, createReducer, reducer;
+	let extendAction, createReducer, createSiteReducer, reducer;
 
 	useMockery( ( mockery ) => {
 		mockery.registerMock( 'lib/warn', noop );
 
-		( { extendAction, createReducer } = require( 'state/utils' ) );
+		( { extendAction, createReducer, createSiteReducer } = require( 'state/utils' ) );
 	} );
 
 	describe( 'extendAction()', () => {
@@ -233,6 +233,71 @@ describe( 'utils', () => {
 
 			expect( monitor ).to.have.been.calledThrice;
 			expect( state ).to.eql( [ 0, 1 ] );
+		} );
+	} );
+
+	describe( 'createSiteReducer()', () => {
+		before( () => {
+			reducer = createSiteReducer( [], {
+				TEST_ADD: ( state, { value } ) => includes( state, value ) ? state : [ ...state, value ]
+			}, {
+				type: 'array',
+				items: {
+					type: 'number'
+				}
+			} );
+		} );
+
+		it( 'should extend createReducer, keying by action.siteId', () => {
+			const state = reducer( undefined, {
+				type: 'TEST_ADD',
+				siteId: 2916284,
+				value: 1
+			} );
+
+			expect( state ).to.eql( { 2916284: [ 1 ] } );
+		} );
+
+		it( 'should optimize returned state as same reference if no change', () => {
+			const originalState = reducer( deepFreeze( {} ), {
+				type: 'TEST_ADD',
+				siteId: 2916284,
+				value: 1
+			} );
+			const state = reducer( originalState, {
+				type: 'TEST_ADD',
+				siteId: 2916284,
+				value: 1
+			} );
+
+			expect( state ).to.equal( originalState );
+		} );
+
+		it( 'should augment schema to validate site keyed structure', () => {
+			const originalState = deepFreeze( { 2916284: [ 1 ] } );
+			const state = reducer( originalState, {
+				type: DESERIALIZE
+			} );
+
+			expect( state ).to.equal( originalState );
+		} );
+
+		it( 'should augment schema to invalidate original structure', () => {
+			const originalState = deepFreeze( [ 1 ] );
+			const state = reducer( originalState, {
+				type: DESERIALIZE
+			} );
+
+			expect( state ).to.eql( {} );
+		} );
+
+		it( 'should augment schema to invalidate site ID structure', () => {
+			const originalState = deepFreeze( { '': [ 1 ] } );
+			const state = reducer( originalState, {
+				type: DESERIALIZE
+			} );
+
+			expect( state ).to.eql( {} );
 		} );
 	} );
 } );
