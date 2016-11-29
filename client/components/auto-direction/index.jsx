@@ -103,7 +103,7 @@ const RTLCharRanges = [
 const RTL_THRESHOLD = 0.5;
 const MAX_LENGTH_OF_TEXT_TO_EXAMINE = 100;
 
-const isRTLChar = ( character ) => {
+const isRTLCharacter = ( character ) => {
 	const characterCode = character.charCodeAt( 0 );
 	return RTLCharRanges.some( range => range.start <= characterCode && range.end >= characterCode );
 };
@@ -119,7 +119,7 @@ const getTextMainDirection = ( text ) => {
 	let rtlCount = 0;
 	const examinedLength = Math.min( MAX_LENGTH_OF_TEXT_TO_EXAMINE, text.length );
 	for ( let i = 0; i < examinedLength; i++ ) {
-		rtlCount += isRTLChar( text[ i ] ) ? 1 : 0;
+		rtlCount += isRTLCharacter( text[ i ] ) ? 1 : 0;
 	}
 
 	return ( rtlCount / examinedLength > RTL_THRESHOLD ) ? 'rtl' : 'ltr';
