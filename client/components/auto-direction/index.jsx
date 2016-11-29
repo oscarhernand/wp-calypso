@@ -7,6 +7,7 @@ import React, { PropTypes } from 'react';
  * Internal dependencies
  */
 import userModule from 'lib/user';
+import stripHTML from 'lib/formatting';
 
 const user = userModule();
 
@@ -26,9 +27,8 @@ const getContent = ( reactElement ) => {
 	// This child has it's content set to external HTML
 	if ( typeof props.dangerouslySetInnerHTML === 'object' ) {
 		// Strip tags because we're only interested in the text, not markup
-		// copied from: http://stackoverflow.com/questions/5002111/javascript-how-to-strip-html-tags-from-string#answer-5002161
 		return props.dangerouslySetInnerHTML.__html
-			? props.dangerouslySetInnerHTML.__html.replace( /<\/?[^>]+(>|$)/g, '' )
+			? stripHTML( props.dangerouslySetInnerHTML.__html )
 			: '';
 	}
 
