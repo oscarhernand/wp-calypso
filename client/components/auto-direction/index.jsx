@@ -12,36 +12,101 @@ const user = userModule();
 
 /***
  * Gets text content from react element in case that's a leaf element
- * @param react element
+ * @param {React.Element} reactElement react element
  * @returns {string|null} returns a text content of the react element or null if it's not a leaf element
  */
-const getContent = ( { props: reactComponentProps } ) => {
+const getContent = ( reactElement ) => {
+	const { props } = reactElement;
+
 	// The child is a text node
-	if ( typeof reactComponentProps.children === 'string' ) {
-		return reactComponentProps.children;
+	if ( typeof props.children === 'string' ) {
+		return props.children;
 	}
 
 	// This child has it's content set to external HTML
-	if ( typeof reactComponentProps.dangerouslySetInnerHTML === 'object' ) {
+	if ( typeof props.dangerouslySetInnerHTML === 'object' ) {
 		// Strip tags because we're only interested in the text, not markup
 		// copied from: http://stackoverflow.com/questions/5002111/javascript-how-to-strip-html-tags-from-string#answer-5002161
-		return reactComponentProps.dangerouslySetInnerHTML.__html
-			? reactComponentProps.dangerouslySetInnerHTML.__html.replace( /<\/?[^>]+(>|$)/g, '' )
+		return props.dangerouslySetInnerHTML.__html
+			? props.dangerouslySetInnerHTML.__html.replace( /<\/?[^>]+(>|$)/g, '' )
 			: '';
 	}
 
 	// This child is some kind of input
-	if ( typeof reactComponentProps.value === 'string' ) {
-		return reactComponentProps.value;
+	if ( typeof props.value === 'string' ) {
+		return props.value;
 	}
 
 	// We have no idea how to get this element's content or it's not a leaf component
 	return null;
 };
 
-// Copied from: https://github.com/twitter/RTLtextarea/blob/master/src/RTLText.module.js#L46
-const rtlChar = /[\u0590-\u083F]|[\u08A0-\u08FF]|[\uFB1D-\uFDFF]|[\uFE70-\uFEFF]/mg;
-const rtlThreshold = 0.3;
+// Adopted from from: https://github.com/twitter/RTLtextarea/blob/master/src/RTLText.module.js#L25
+const RTLCharRanges = [
+	{
+		name: 'Hebrew',
+		start: 0x590,
+		end: 0x5FF
+	},
+	{
+		name: 'Arabic',
+		start: 0x600,
+		end: 0x6FF
+	},
+	{
+		name: 'Syriac',
+		start: 0x700,
+		end: 0x74F
+	},
+	{
+		name: 'Arabic Supplement',
+		start: 0x750,
+		end: 0x77F
+	},
+	{
+		name: 'Thaana',
+		start: 0x780,
+		end: 0x7BF
+	},
+	{
+		name: 'N\'Ko',
+		start: 0x7C0,
+		end: 0x7FF
+	},
+	{
+		name: 'Samaritan',
+		start: 0x800,
+		end: 0x83F
+	},
+	{
+		name: 'Arabic Extended-A',
+		start: 0x8A0,
+		end: 0x8FF
+	},
+	{
+		name: 'Hebrew presentation forms',
+		start: 0xFB1D,
+		end: 0xFB4F
+	},
+	{
+		name: 'Arabic presentation forms A',
+		start: 0xFB50,
+		end: 0xFDFF
+	},
+	{
+		name: 'Arabic presentation forms B',
+		start: 0xFE70,
+		end: 0xFEFF
+	},
+];
+
+const RTL_THRESHOLD = 0.5;
+const MAX_LENGTH_OF_TEXT_TO_EXAMINE = 1000;
+
+const isRTLChar = ( char ) => {
+	const charCode = char.charCodeAt( 0 );
+	return RTLCharRanges.some( range => range.start <= charCode && range.end >= charCode );
+};
 
 /***
  * Gets the main directionality in a text
@@ -52,11 +117,12 @@ const rtlThreshold = 0.3;
  */
 const getTextMainDirection = ( text ) => {
 	let rtlCount = 0;
-	for ( let i = 0; i < text.length; i++ ) {
-		rtlCount += text[ i ].match( rtlChar ) ? 1 : 0;
+	const examinedLength = Math.min( MAX_LENGTH_OF_TEXT_TO_EXAMINE, text.length );
+	for ( let i = 0; i < examinedLength; i++ ) {
+		rtlCount += isRTLChar( text[ i ] ) ? 1 : 0;
 	}
 
-	return ( rtlCount / text.length > rtlThreshold ) ? 'rtl' : 'ltr';
+	return ( rtlCount / examinedLength > RTL_THRESHOLD ) ? 'rtl' : 'ltr';
 };
 
 /***
@@ -95,10 +161,11 @@ const setChildDirection = ( child ) => {
 
 /***
  * Auto direction component that will set direction to child components according to their text content
- * @param {Object.children} props must contain some children
- * @returns {ReactElement}
+ * @param {Object.children} props react element props that must contain some children
+ * @returns {React.Element} returns a react element with adjusted children
  */
-const AutoDirection = ( { children } ) => {
+const AutoDirection = ( props ) => {
+	const { children } = props;
 	const directionedChildren = React.Children.map( children, setChildDirection );
 
 	return <div>{ directionedChildren }</div>;
