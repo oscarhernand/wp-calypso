@@ -2,7 +2,7 @@
  * External dependencies
  */
 import validator from 'is-my-json-valid';
-import { merge } from 'lodash';
+import { merge, mapValues } from 'lodash';
 
 /**
  * Internal dependencies
@@ -115,4 +115,55 @@ export function createReducer( initialState = null, customHandlers = {}, schema 
 
 		return state;
 	};
+}
+
+/**
+ * Extends createReducer, returning a reducer function. The schema and return
+ * value of the enhanced reducer is augmented to create a nested object keyed
+ * by an assumed siteId property on each action handled by customHandlers.
+ *
+ * @see createReducer
+ *
+ * @param  {*}        initialSiteState Initial state per site ID
+ * @param  {Object}   customHandlers   Object mapping action types to state
+ *                                     action handlers
+ * @param  {?Object}  schema           JSON schema object for deserialization
+ *                                     validation
+ * @return {Function}                  Reducer function
+ */
+export function createSiteReducer( initialSiteState = null, customHandlers = {}, schema = null ) {
+	// If schema is provided, wrap it with updated structure where state value
+	// is object with keys of numeric site ID
+	if ( schema ) {
+		schema = {
+			type: 'object',
+			additionalProperties: false,
+			patternProperties: {
+				'^\\d+$': schema
+			}
+		};
+	}
+
+	// Override handlers with to insert returned value into state object with
+	// key derived from action object
+	customHandlers = mapValues( customHandlers, ( handler ) => {
+		return ( state, action ) => {
+			const { siteId } = action;
+
+			// Verify whether state has actually changed, otherwise we can
+			// return the same reference as an optimization
+			const siteState = state.hasOwnProperty( siteId ) ? state[ siteId ] : initialSiteState;
+			const nextSiteState = handler( siteState, action );
+			if ( nextSiteState === siteState ) {
+				return state;
+			}
+
+			return {
+				...state,
+				[ siteId ]: nextSiteState
+			};
+		};
+	} );
+
+	return createReducer( {}, customHandlers, schema );
 }
