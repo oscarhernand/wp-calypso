@@ -8,6 +8,7 @@ import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
  * Internal dependencies
  */
 import noticesMiddleware from './notices/middleware';
+import { uploadQueueMiddleware } from './media/middleware';
 import application from './application/reducer';
 import accountRecovery from './account-recovery/reducer';
 import comments from './comments/reducer';
@@ -25,6 +26,7 @@ import jetpackSettings from './jetpack-settings/reducer';
 import jetpackSync from './jetpack-sync/reducer';
 import happinessEngineers from './happiness-engineers/reducer';
 import happychat from './happychat/reducer';
+import media from './media/reducer';
 import notices from './notices/reducer';
 import pageTemplates from './page-templates/reducer';
 import plans from './plans/reducer';
@@ -74,6 +76,7 @@ export const reducer = combineReducers( {
 	jetpackConnect,
 	jetpackSettings,
 	jetpackSync,
+	media,
 	notices,
 	pageTemplates,
 	plugins,
@@ -104,7 +107,7 @@ export const reducer = combineReducers( {
 	wordads,
 } );
 
-const middleware = [ thunkMiddleware, noticesMiddleware ];
+const middleware = [ thunkMiddleware, noticesMiddleware, uploadQueueMiddleware ];
 
 if ( typeof window === 'object' ) {
 	// Browser-specific middlewares
