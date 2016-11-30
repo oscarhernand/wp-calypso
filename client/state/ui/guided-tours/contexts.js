@@ -1,4 +1,5 @@
 import config from 'config';
+import { abtest } from 'lib/abtest';
 import { getSectionName, isPreviewShowing, getSelectedSite, getSelectedSiteId } from 'state/ui/selectors';
 import { getCurrentUser, canCurrentUser } from 'state/current-user/selectors';
 import { abtest } from 'lib/abtest';
@@ -54,4 +55,8 @@ export const selectedSiteHasDefaultSiteTitle = state => {
 export const userCanEditSettingsOfSelectedSite = state => {
 	const siteId = getSelectedSiteId( state );
 	return siteId ? canCurrentUser( state, siteId, 'manage_options' ) : false;
+};
+
+export const isAbTestInVariant = ( testName, variant ) => () => {
+	return abtest( testName ) === variant;
 };
