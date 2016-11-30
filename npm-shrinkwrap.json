@@ -531,7 +531,7 @@
       }
     },
     "caniuse-db": {
-      "version": "1.0.30000588"
+      "version": "1.0.30000590"
     },
     "caseless": {
       "version": "0.11.0"
@@ -3080,7 +3080,7 @@
       "version": "1.0.2"
     },
     "react-redux": {
-      "version": "5.0.0-beta.3"
+      "version": "5.0.0-rc.1"
     },
     "react-tap-event-plugin": {
       "version": "2.0.1"
