@@ -11,6 +11,9 @@ import { stripHTML } from 'lib/formatting';
 
 const user = userModule();
 
+const RTL_THRESHOLD = 0.5;
+const MAX_LENGTH_OF_TEXT_TO_EXAMINE = 100;
+
 /***
  * Gets text content from react element in case that's a leaf element
  * @param {React.Element} reactElement react element
@@ -35,7 +38,7 @@ const getContent = ( reactElement ) => {
 	if ( typeof props.dangerouslySetInnerHTML === 'object' ) {
 		// Strip tags because we're only interested in the text, not markup
 		return props.dangerouslySetInnerHTML.__html
-			? stripHTML( props.dangerouslySetInnerHTML.__html )
+			? stripHTML( props.dangerouslySetInnerHTML.__html.substring( 0, Math.floor( MAX_LENGTH_OF_TEXT_TO_EXAMINE * 1.25 ) ) )
 			: '';
 	}
 
@@ -107,8 +110,7 @@ const rtlCharacterRanges = [
 	},
 ];
 
-const RTL_THRESHOLD = 0.5;
-const MAX_LENGTH_OF_TEXT_TO_EXAMINE = 100;
+
 
 const isRTLCharacter = ( character ) => {
 	const characterCode = character.charCodeAt( 0 );
