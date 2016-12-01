@@ -6,6 +6,7 @@ import {
 	SITE_FRONT_PAGE_SET,
 	SITE_FRONT_PAGE_SET_FAILURE,
 	SITE_FRONT_PAGE_SET_SUCCESS,
+	SITE_ICON_SET,
 	SITE_RECEIVE,
 	SITE_REQUEST,
 	SITE_REQUEST_FAILURE,
@@ -153,5 +154,20 @@ export function setFrontPage( siteId, pageId, successCallback ) {
 				error
 			} );
 		} );
+	};
+}
+
+/**
+ * Returns an action object used in signalling that the icon for the site
+ * should be assigned to the specified image URL.
+ *
+ * @param {Number} siteId  Site ID
+ * @param {String} iconUrl Icon URL
+ */
+export function setSiteIcon( siteId, iconUrl ) {
+	return {
+		type: SITE_ICON_SET,
+		siteId,
+		iconUrl
 	};
 }
