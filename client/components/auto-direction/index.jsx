@@ -117,6 +117,11 @@ const isRTLCharacter = ( character ) => {
 	return rtlCharacterRanges.some( range => range.start <= characterCode && range.end >= characterCode );
 };
 
+const whitespaceRe = /[\s\-\_0-9]/u;
+const isNeutralCharacter = ( character ) => {
+	return whitespaceRe.test( character );
+}
+
 /***
  * Gets the main directionality in a text
  * It returns what kind of characters we had the most, RTL or LTR according to some ratio
@@ -126,12 +131,21 @@ const isRTLCharacter = ( character ) => {
  */
 const getTextMainDirection = ( text ) => {
 	let rtlCount = 0;
+	let countedCharacters = 0;
 	const examinedLength = Math.min( MAX_LENGTH_OF_TEXT_TO_EXAMINE, text.length );
 	for ( let i = 0; i < examinedLength; i++ ) {
+		if ( isNeutralCharacter( text[ i ] ) ) {
+			continue;
+		}
 		rtlCount += isRTLCharacter( text[ i ] ) ? 1 : 0;
+		countedCharacters++;
 	}
 
-	return ( rtlCount / examinedLength > RTL_THRESHOLD ) ? 'rtl' : 'ltr';
+	if ( countedCharacters === 0 ) {
+		return user.isRTL ? 'rtl' : 'ltr';
+	}
+
+	return ( rtlCount / countedCharacters > RTL_THRESHOLD ) ? 'rtl' : 'ltr';
 };
 
 /***
