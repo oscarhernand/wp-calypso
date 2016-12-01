@@ -17,7 +17,14 @@ const user = userModule();
  * @returns {string|null} returns a text content of the react element or null if it's not a leaf element
  */
 const getContent = ( reactElement ) => {
+	if ( ! reactElement ) {
+		return null;
+	}
 	const { props } = reactElement;
+
+	if ( ! props ) {
+		return null;
+	}
 
 	// The child is a text node
 	if ( typeof props.children === 'string' ) {
@@ -154,9 +161,13 @@ const setChildDirection = ( child ) => {
 		return child;
 	}
 
-	return React.cloneElement( child, {
-		children: React.Children.map( child.props.children, setChildDirection )
-	} );
+	if ( child && child.props.children ) {
+		return React.cloneElement( child, {
+			children: React.Children.map( child.props.children, setChildDirection )
+		} );
+	}
+
+	return child;
 };
 
 /***
