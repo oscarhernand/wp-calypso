@@ -142,7 +142,7 @@ const getTextMainDirection = ( text ) => {
 	}
 
 	if ( countedCharacters === 0 ) {
-		return user.isRTL ? 'rtl' : 'ltr';
+		return user.isRTL() ? 'rtl' : 'ltr';
 	}
 
 	return ( rtlCount / countedCharacters > RTL_THRESHOLD ) ? 'rtl' : 'ltr';
