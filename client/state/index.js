@@ -25,6 +25,7 @@ import jetpackSettings from './jetpack-settings/reducer';
 import jetpackSync from './jetpack-sync/reducer';
 import happinessEngineers from './happiness-engineers/reducer';
 import happychat from './happychat/reducer';
+import media from './media/reducer';
 import notices from './notices/reducer';
 import pageTemplates from './page-templates/reducer';
 import plans from './plans/reducer';
@@ -74,6 +75,7 @@ export const reducer = combineReducers( {
 	jetpackConnect,
 	jetpackSettings,
 	jetpackSync,
+	media,
 	notices,
 	pageTemplates,
 	plugins,
