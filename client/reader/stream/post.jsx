@@ -260,12 +260,7 @@ const Post = React.createClass( {
 
 		const url = readerRoute.getStreamUrlFromPost( this.props.post );
 		page.show( url );
-	},
-
-	handleSiteClick: function( event ) {
-		if ( ! utils.isSpecialClick( event ) ) {
-			event.preventDefault();
-		}
+		event.preventDefault();
 	},
 
 	maybeMarkPostSeen: function( liked ) {
@@ -352,7 +347,7 @@ const Post = React.createClass( {
 
 				<PostErrors post={ post } />
 
-				{ this.props.showPostHeader ? <PostHeader site={ site } siteUrl={ post.site_URL } showFollow={ this.props.showFollowInHeader } onSiteSelect={ this.pickSite } onSiteClick={ this.handleSiteClick } /> : null }
+				{ this.props.showPostHeader ? <PostHeader site={ site } siteUrl={ post.site_URL } showFollow={ this.props.showFollowInHeader } onSiteSelect={ this.pickSite } /> : null }
 
 				{ featuredImage }
 

@@ -154,7 +154,6 @@ const CurrentSite = React.createClass( {
 						site={ site }
 						homeLink={ true }
 						externalLink={ true }
-						onClick={ this.previewSite }
 						onSelect={ this.previewSite }
 						tipTarget="site-card-preview" />
 					: <AllSites sites={ this.props.sites.get() } />
