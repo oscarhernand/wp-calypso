@@ -791,19 +791,19 @@ const LEFT_TO_RIGHT = [
 ];
 
 const createLookUpMap = ( charactersRangeArray ) => {
-	const map = new Map();
+	const set = new Set();
 
 	charactersRangeArray.forEach( range => {
 		for ( let i = range[ 0 ]; i <= range[ 1 ]; i++ ) {
-			map.set( i, true );
+			set.add( i );
 		}
 	} );
 
-	return map;
+	return set;
 };
 
-const RTL_MAP = createLookUpMap( RIGHT_TO_LEFT );
-const LTR_MAP = createLookUpMap( LEFT_TO_RIGHT );
+const RTL_SET = createLookUpMap( RIGHT_TO_LEFT );
+const LTR_SET = createLookUpMap( LEFT_TO_RIGHT );
 
-export const isRTLCharacter = character => RTL_MAP.has( character.charCodeAt( 0 ) );
-export const isLTRCharacter = character => LTR_MAP.has( character.charCodeAt( 0 ) );
+export const isRTLCharacter = character => RTL_SET.has( character.charCodeAt( 0 ) );
+export const isLTRCharacter = character => LTR_SET.has( character.charCodeAt( 0 ) );
